@@ -1,0 +1,368 @@
+<!doctype html>
+<!--
+  PROTOTYPE — throwaway. Question: what should Prudence's four core screens look like?
+  Three variants of list / add-expense / category-tree / report, switchable via ?variant=A|B|C
+  (floating bottom bar or arrow keys). Pick one, or mix & match bits.
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Prudence — core screens prototype</title>
+<style>
+  :root { --accent:#2563eb; --ink:#1f2937; --mut:#6b7280; --line:#d1d5db; --bg:#f3f4f6; }
+  * { box-sizing:border-box; margin:0; font-family:system-ui, sans-serif; }
+  body { background:var(--bg); color:var(--ink); padding:16px 16px 96px; }
+  .pagehead { max-width:1400px; margin:0 auto 16px; }
+  .pagehead h1 { font-size:18px; }
+  .pagehead p { color:var(--mut); font-size:13px; margin-top:4px; }
+  .screens { display:flex; gap:24px; flex-wrap:wrap; justify-content:center; }
+  .frame { width:300px; }
+  .frame figcaption { text-align:center; font-size:13px; color:var(--mut); margin-top:8px; }
+  .phone { width:300px; height:600px; background:#fff; border:2px solid var(--ink); border-radius:28px; overflow:hidden; position:relative; display:flex; flex-direction:column; }
+  .appbar { padding:14px 14px 10px; border-bottom:1px solid var(--line); font-weight:600; display:flex; align-items:center; gap:10px; min-height:48px; }
+  .appbar .spacer { flex:1; }
+  .appbar .ic { color:var(--mut); font-weight:400; cursor:pointer; }
+  .body { flex:1; overflow:hidden auto; padding:10px 14px; }
+  .muted { color:var(--mut); }
+  .small { font-size:12px; }
+  .datehead { font-size:12px; color:var(--mut); margin:12px 0 4px; text-transform:uppercase; letter-spacing:.04em; }
+  .row { display:flex; align-items:center; gap:10px; padding:9px 0; border-bottom:1px solid #eee; }
+  .row .grow { flex:1; min-width:0; }
+  .amt { font-variant-numeric:tabular-nums; font-weight:600; white-space:nowrap; }
+  .fab { position:absolute; right:16px; bottom:72px; width:52px; height:52px; border-radius:50%; background:var(--accent); color:#fff; display:grid; place-items:center; font-size:26px; box-shadow:0 4px 10px rgba(0,0,0,.25); }
+  .bottomnav { display:flex; border-top:1px solid var(--line); }
+  .bottomnav div { flex:1; text-align:center; padding:10px 0 12px; font-size:11px; color:var(--mut); }
+  .bottomnav .on { color:var(--accent); font-weight:600; }
+  .chips { display:flex; gap:6px; padding:10px 14px 4px; align-items:center; }
+  .chip { border:1px solid var(--line); border-radius:999px; padding:5px 12px; font-size:12px; white-space:nowrap; }
+  .chip.on { background:var(--accent); border-color:var(--accent); color:#fff; }
+  .totalcard { margin:10px 14px; padding:14px; border:1px solid var(--line); border-radius:14px; }
+  .totalcard .big { font-size:26px; font-weight:700; font-variant-numeric:tabular-nums; }
+  .catrow { padding:9px 14px 11px; border-bottom:1px solid #eee; }
+  .catrow .top { display:flex; gap:10px; align-items:baseline; }
+  .catrow .bar { height:6px; border-radius:3px; background:var(--accent); margin-top:6px; opacity:.85; }
+  .barwrap { background:#e5e7eb; border-radius:3px; margin-top:6px; }
+  .barwrap .bar { margin-top:0; }
+  .field { border-bottom:1px solid var(--line); padding:12px 0; }
+  .field .label { font-size:11px; color:var(--mut); text-transform:uppercase; letter-spacing:.05em; }
+  .field .val { font-size:16px; margin-top:2px; }
+  .bigamt { font-size:34px; font-weight:700; text-align:center; padding:22px 0 6px; font-variant-numeric:tabular-nums; }
+  .btnrow { display:flex; gap:10px; padding:14px 0; }
+  .btn { flex:1; text-align:center; padding:11px; border-radius:10px; font-weight:600; font-size:14px; }
+  .btn.primary { background:var(--accent); color:#fff; }
+  .btn.ghost { border:1px solid var(--line); }
+  .tree .trow { display:flex; align-items:center; gap:8px; padding:8px 0 8px calc(var(--d,0)*20px); border-bottom:1px solid #f3f4f6; font-size:14px; }
+  .tree .trow .grow { flex:1; }
+  .tree .pick { width:14px; height:14px; border-radius:50%; border:2px solid var(--line); flex:none; }
+  .tree .sel .pick { border-color:var(--accent); background:var(--accent); }
+  .tree .edit { color:var(--mut); font-size:12px; }
+  .sheet { position:absolute; inset:auto 0 0 0; background:#fff; border-radius:18px 18px 0 0; box-shadow:0 -6px 24px rgba(0,0,0,.25); padding:6px 16px 16px; max-height:82%; overflow:auto; }
+  .sheet .grip { width:40px; height:4px; border-radius:2px; background:var(--line); margin:6px auto 10px; }
+  .dim { position:absolute; inset:0; background:rgba(0,0,0,.35); }
+  .addbar { position:absolute; inset:auto 0 0 0; padding:14px; background:#fff; border-top:1px solid var(--line); }
+  .addbar .btn { width:100%; }
+  .drawer { position:absolute; inset:0 30% 0 0; background:#fff; box-shadow:6px 0 24px rgba(0,0,0,.25); padding:14px 0 14px 14px; }
+  .crumbs { display:flex; gap:6px; align-items:center; flex-wrap:wrap; padding:4px 0 10px; }
+  .crumb { border:1px solid var(--accent); color:var(--accent); border-radius:999px; padding:4px 10px; font-size:12px; display:inline-flex; gap:6px; align-items:center; }
+  .nextchips { display:flex; gap:6px; flex-wrap:wrap; padding:6px 0; }
+  .twopane { display:flex; gap:0; border:1px solid var(--line); border-radius:12px; overflow:hidden; margin-top:8px; }
+  .twopane .l { width:46%; border-right:1px solid var(--line); background:#f9fafb; }
+  .twopane .r { flex:1; }
+  .twopane .p { padding:9px 10px; font-size:13px; border-bottom:1px solid #eee; }
+  .twopane .p.on { background:#fff; font-weight:600; color:var(--accent); }
+  .card { border:1px solid var(--line); border-radius:14px; padding:12px; margin:0 14px 10px; }
+  .card .kid { display:flex; gap:8px; font-size:12px; color:var(--mut); margin-top:6px; }
+  .kidbar { height:4px; border-radius:2px; background:var(--accent); opacity:.6; margin-top:3px; }
+  .seg { display:flex; border:1px solid var(--line); border-radius:10px; overflow:hidden; margin:10px 14px 0; }
+  .seg div { flex:1; text-align:center; padding:8px; font-size:13px; }
+  .seg .on { background:var(--ink); color:#fff; }
+  .navarrow { color:var(--mut); font-size:16px; padding:4px 2px; }
+  .switcher { position:fixed; left:50%; bottom:18px; transform:translateX(-50%); background:#111827; color:#fff; border-radius:999px; display:flex; align-items:center; gap:14px; padding:10px 18px; box-shadow:0 8px 24px rgba(0,0,0,.35); font-size:14px; z-index:50; }
+  .switcher button { background:none; border:none; color:#fff; font-size:18px; cursor:pointer; padding:0 4px; }
+  .switcher .vname { color:#9ca3af; }
+  [hidden] { display:none !important; }
+</style>
+</head>
+<body>
+
+<div class="pagehead">
+  <h1>Prudence — core screens (PROTOTYPE, throwaway)</h1>
+  <p>Same four screens, same mock data, three structures. Switch with the bar below, arrow keys, or <code>?variant=A|B|C</code>. Mock data: November 2026, total $1,451.39.</p>
+</div>
+
+<!-- ============ VARIANT A: bottom tabs + modal sheet, accordion tree picker ============ -->
+<section class="variant" data-v="A" data-name="Bottom tabs + sheet">
+<div class="screens">
+
+  <figure class="frame"><div class="phone">
+    <div class="appbar">Prudence</div>
+    <div class="body">
+      <div class="datehead">Today · Thu 12 Nov</div>
+      <div class="row"><div class="grow">Groceries<div class="muted small">Weekly shop</div></div><div class="amt">$42.10</div></div>
+      <div class="row"><div class="grow">Fuel</div><div class="amt">$38.00</div></div>
+      <div class="datehead">Yesterday</div>
+      <div class="row"><div class="grow">Eating out<div class="muted small">Lunch</div></div><div class="amt">$12.50</div></div>
+      <div class="datehead">Tue 10 Nov</div>
+      <div class="row"><div class="grow">Rent</div><div class="amt">$900.00</div></div>
+      <div class="row"><div class="grow">Public transport</div><div class="amt">$3.20</div></div>
+    </div>
+    <div class="fab">+</div>
+    <div class="bottomnav"><div class="on">●<br>Expenses</div><div>●<br>Categories</div><div>●<br>Report</div></div>
+  </div><figcaption>A1 · Expense list — date groups, FAB, bottom tabs</figcaption></figure>
+
+  <figure class="frame"><div class="phone">
+    <div class="appbar">Prudence</div>
+    <div class="body dim"></div>
+    <div class="fab" style="opacity:.4">+</div>
+    <div class="bottomnav" style="opacity:.4"><div class="on">●<br>Expenses</div><div>●<br>Categories</div><div>●<br>Report</div></div>
+    <div class="sheet">
+      <div class="grip"></div>
+      <div class="bigamt">$42.10</div>
+      <div class="field"><div class="label">Date</div><div class="val">Today · 12 Nov 2026 ▾</div></div>
+      <div class="field"><div class="label">Category</div><div class="val">Food › <b>Groceries</b></div></div>
+      <div class="tree">
+        <div class="trow" style="--d:0"><span class="pick"></span><span class="grow">Food</span><span class="muted">▾</span></div>
+        <div class="trow sel" style="--d:1"><span class="pick"></span><span class="grow">Groceries</span></div>
+        <div class="trow" style="--d:1"><span class="pick"></span><span class="grow">Eating out</span></div>
+        <div class="trow" style="--d:0"><span class="pick"></span><span class="grow">Transport</span><span class="muted">▸</span></div>
+        <div class="trow" style="--d:0"><span class="pick"></span><span class="grow">Housing</span><span class="muted">▸</span></div>
+      </div>
+      <div class="field"><div class="label">Note · optional</div><div class="val muted">Weekly shop</div></div>
+      <div class="btnrow"><div class="btn ghost">Cancel</div><div class="btn primary">Save</div></div>
+    </div>
+  </div><figcaption>A2 · Add expense — modal sheet, accordion tree picker</figcaption></figure>
+
+  <figure class="frame"><div class="phone">
+    <div class="appbar">Categories<span class="spacer"></span><span class="ic">+</span></div>
+    <div class="body tree">
+      <div class="trow" style="--d:0"><span class="grow">Food</span><span class="edit">✎</span><span class="edit">⋮</span></div>
+      <div class="trow" style="--d:1"><span class="grow">Groceries</span><span class="edit">✎</span><span class="edit">⋮</span></div>
+      <div class="trow" style="--d:1"><span class="grow">Eating out</span><span class="edit">✎</span><span class="edit">⋮</span></div>
+      <div class="trow" style="--d:0"><span class="grow">Transport</span><span class="edit">✎</span><span class="edit">⋮</span></div>
+      <div class="trow" style="--d:1"><span class="grow">Fuel</span><span class="edit">✎</span><span class="edit">⋮</span></div>
+      <div class="trow" style="--d:1"><span class="grow">Public transport</span><span class="edit">✎</span><span class="edit">⋮</span></div>
+      <div class="trow" style="--d:0"><span class="grow">Housing</span><span class="edit">✎</span><span class="edit">⋮</span></div>
+      <div class="trow" style="--d:1"><span class="grow">Rent</span><span class="edit">✎</span><span class="edit">⋮</span></div>
+      <div class="trow" style="--d:1"><span class="grow">Utilities</span><span class="edit">✎</span><span class="edit">⋮</span></div>
+      <div class="trow" style="--d:0"><span class="grow">Health</span><span class="edit">✎</span><span class="edit">⋮</span></div>
+      <div class="trow" style="--d:0"><span class="grow">Entertainment</span><span class="edit">✎</span><span class="edit">⋮</span></div>
+      <div class="trow" style="--d:0"><span class="grow muted">Uncategorized 🔒</span></div>
+      <p class="muted small" style="margin-top:10px">✎ rename · ⋮ move / delete (delete → expenses &amp; children go to parent)</p>
+    </div>
+    <div class="bottomnav"><div>●<br>Expenses</div><div class="on">●<br>Categories</div><div>●<br>Report</div></div>
+  </div><figcaption>A3 · Category management — indented tree, per-row actions</figcaption></figure>
+
+  <figure class="frame"><div class="phone">
+    <div class="appbar"><span class="navarrow">‹</span><b>This month</b><span class="navarrow">›</span></div>
+    <div class="chips"><span class="chip">This week</span><span class="chip on">This month</span><span class="chip">Custom…</span></div>
+    <div class="totalcard"><div class="label muted small">1–30 NOV 2026 · TOTAL</div><div class="big">$1,451.39</div></div>
+    <div class="body" style="padding:0">
+      <div class="catrow"><div class="top"><span class="grow">Housing</span><span class="amt">$950.00</span><span class="muted small">65%</span></div><div class="barwrap"><div class="bar" style="width:65%"></div></div></div>
+      <div class="catrow"><div class="top"><span class="grow">Food</span><span class="amt">$312.40</span><span class="muted small">22%</span></div><div class="barwrap"><div class="bar" style="width:22%"></div></div></div>
+      <div class="catrow"><div class="top"><span class="grow">Transport</span><span class="amt">$146.00</span><span class="muted small">10%</span></div><div class="barwrap"><div class="bar" style="width:10%"></div></div></div>
+      <div class="catrow"><div class="top"><span class="grow">Health</span><span class="amt">$24.99</span><span class="muted small">2%</span></div><div class="barwrap"><div class="bar" style="width:2%"></div></div></div>
+      <div class="catrow"><div class="top"><span class="grow">Entertainment</span><span class="amt">$18.00</span><span class="muted small">1%</span></div><div class="barwrap"><div class="bar" style="width:1%"></div></div></div>
+      <p class="muted small" style="padding:10px 14px">tap a row → drills into its children</p>
+    </div>
+    <div class="bottomnav"><div>●<br>Expenses</div><div>●<br>Categories</div><div class="on">●<br>Report</div></div>
+  </div><figcaption>A4 · Report — ‹ › shift, preset chips, total card, breakdown</figcaption></figure>
+
+</div>
+</section>
+
+<!-- ============ VARIANT B: one-list minimal, full-screen pages, chip-path picker ============ -->
+<section class="variant" data-v="B" data-name="One-list minimal" hidden>
+<div class="screens">
+
+  <figure class="frame"><div class="phone">
+    <div class="appbar"><div><div class="small muted">NOVEMBER</div><b>$1,451.39</b></div><span class="spacer"></span><span class="ic">📊</span><span class="ic">⚙</span></div>
+    <div class="body">
+      <div class="datehead">Today · Thu 12 Nov</div>
+      <div class="row"><div class="grow">Groceries<div class="muted small">Weekly shop</div></div><div class="amt">$42.10</div></div>
+      <div class="row"><div class="grow">Fuel</div><div class="amt">$38.00</div></div>
+      <div class="datehead">Yesterday</div>
+      <div class="row"><div class="grow">Eating out<div class="muted small">Lunch</div></div><div class="amt">$12.50</div></div>
+      <div class="datehead">Tue 10 Nov</div>
+      <div class="row"><div class="grow">Rent</div><div class="amt">$900.00</div></div>
+      <div class="row"><div class="grow">Public transport</div><div class="amt">$3.20</div></div>
+    </div>
+    <div class="addbar"><div class="btn primary">+ Add expense</div></div>
+  </div><figcaption>B1 · Expense list IS the home — running month total in the bar</figcaption></figure>
+
+  <figure class="frame"><div class="phone">
+    <div class="appbar"><span class="ic">‹</span> Add expense</div>
+    <div class="body">
+      <div class="bigamt">$42.10</div>
+      <div class="field"><div class="label">Date</div><div class="val">Today · 12 Nov 2026 ▾</div></div>
+      <div class="field" style="border:none"><div class="label">Category — drill with chips</div></div>
+      <div class="crumbs"><span class="crumb">Food ✕</span><span class="crumb">Groceries ✕</span></div>
+      <div class="nextchips">
+        <span class="chip">Groceries</span><span class="chip">Eating out</span>
+      </div>
+      <p class="muted small" style="margin:4px 0 10px">path chips remove a level · lower chips go one level deeper · tap again to select</p>
+      <div class="field"><div class="label">Note · optional</div><div class="val muted">Weekly shop</div></div>
+      <div class="btn primary">Save</div>
+    </div>
+  </div><figcaption>B2 · Add expense — full-screen, category picked as a chip path</figcaption></figure>
+
+  <figure class="frame"><div class="phone">
+    <div class="appbar"><span class="ic">‹</span> Categories<span class="spacer"></span><span class="ic">+</span></div>
+    <div class="body tree">
+      <div class="trow" style="--d:0"><span class="grow">Food</span><span class="edit">✎</span><span class="edit">⋮</span></div>
+      <div class="trow" style="--d:1"><span class="grow">Groceries</span><span class="edit">✎</span><span class="edit">⋮</span></div>
+      <div class="trow" style="--d:1"><span class="grow">Eating out</span><span class="edit">✎</span><span class="edit">⋮</span></div>
+      <div class="trow" style="--d:0"><span class="grow">Transport</span><span class="edit">✎</span><span class="edit">⋮</span></div>
+      <div class="trow" style="--d:1"><span class="grow">Fuel</span><span class="edit">✎</span><span class="edit">⋮</span></div>
+      <div class="trow" style="--d:1"><span class="grow">Public transport</span><span class="edit">✎</span><span class="edit">⋮</span></div>
+      <div class="trow" style="--d:0"><span class="grow">Housing</span><span class="edit">✎</span><span class="edit">⋮</span></div>
+      <div class="trow" style="--d:1"><span class="grow">Rent</span><span class="edit">✎</span><span class="edit">⋮</span></div>
+      <div class="trow" style="--d:1"><span class="grow">Utilities</span><span class="edit">✎</span><span class="edit">⋮</span></div>
+      <div class="trow" style="--d:0"><span class="grow">Health</span><span class="edit">✎</span><span class="edit">⋮</span></div>
+      <div class="trow" style="--d:0"><span class="grow">Entertainment</span><span class="edit">✎</span><span class="edit">⋮</span></div>
+      <div class="trow" style="--d:0"><span class="grow muted">Uncategorized 🔒</span></div>
+      <p class="muted small" style="margin-top:10px">reached via ⚙ on the home list · ✎ rename · ⋮ move / delete</p>
+    </div>
+  </div><figcaption>B3 · Categories — behind settings, same tree, full-screen page</figcaption></figure>
+
+  <figure class="frame"><div class="phone">
+    <div class="appbar"><span class="ic">‹</span> Report</div>
+    <div class="seg"><div>Week</div><div class="on">Month</div><div>Custom</div></div>
+    <div class="chips"><span class="navarrow">‹</span><span class="chip on">November 2026</span><span class="navarrow">›</span></div>
+    <div class="totalcard"><div class="label muted small">TOTAL</div><div class="big">$1,451.39</div></div>
+    <div class="body" style="padding:0">
+      <div class="catrow"><div class="top"><span class="grow muted small">‹ All / Food (drilled)</span></div></div>
+      <div class="catrow"><div class="top"><span class="grow">Groceries</span><span class="amt">$268.90</span><span class="muted small">86%</span></div><div class="barwrap"><div class="bar" style="width:86%"></div></div></div>
+      <div class="catrow"><div class="top"><span class="grow">Eating out</span><span class="amt">$43.50</span><span class="muted small">14%</span></div><div class="barwrap"><div class="bar" style="width:14%"></div></div></div>
+      <p class="muted small" style="padding:10px 14px">drilled state shown: % is of the parent category</p>
+    </div>
+  </div><figcaption>B4 · Report — segmented interval control; drilled-into-Food state</figcaption></figure>
+
+</div>
+</section>
+
+<!-- ============ VARIANT C: report-first dashboard, drawer categories, two-pane picker ============ -->
+<section class="variant" data-v="C" data-name="Report-first dashboard" hidden>
+<div class="screens">
+
+  <figure class="frame"><div class="phone">
+    <div class="appbar"><span class="ic">☰</span> Prudence</div>
+    <div class="body">
+      <div class="datehead">Today · Thu 12 Nov</div>
+      <div class="row"><div class="grow">Groceries<div class="muted small">Weekly shop</div></div><div class="amt">$42.10</div></div>
+      <div class="row"><div class="grow">Fuel</div><div class="amt">$38.00</div></div>
+      <div class="datehead">Yesterday</div>
+      <div class="row"><div class="grow">Eating out<div class="muted small">Lunch</div></div><div class="amt">$12.50</div></div>
+    </div>
+    <div class="addbar"><div class="btn primary">+ Add expense</div></div>
+    <div class="bottomnav"><div>●<br>Report</div><div class="on">●<br>Expenses</div></div>
+  </div><figcaption>C1 · Expense list — second tab; report is the home screen</figcaption></figure>
+
+  <figure class="frame"><div class="phone">
+    <div class="appbar"><span class="ic">‹</span> Add expense</div>
+    <div class="body">
+      <div class="bigamt">$42.10</div>
+      <div class="field"><div class="label">Date</div><div class="val">Today · 12 Nov 2026 ▾</div></div>
+      <div class="label muted small" style="margin-top:8px">CATEGORY — LEFT: LEVEL · RIGHT: ITS CHILDREN</div>
+      <div class="twopane">
+        <div class="l">
+          <div class="p on">Food</div>
+          <div class="p">Transport</div>
+          <div class="p">Housing</div>
+          <div class="p">Health</div>
+          <div class="p">Entertainment</div>
+          <div class="p muted">Uncategorized</div>
+        </div>
+        <div class="r">
+          <div class="p on"><b>✓ Food (all)</b></div>
+          <div class="p">Groceries</div>
+          <div class="p">Eating out</div>
+          <div class="p muted" style="text-align:center">+ new under Food</div>
+        </div>
+      </div>
+      <div class="field" style="margin-top:8px"><div class="label">Note · optional</div><div class="val muted">Weekly shop</div></div>
+      <div class="btn primary">Save</div>
+    </div>
+  </div><figcaption>C2 · Add expense — two-pane category picker (parents | children)</figcaption></figure>
+
+  <figure class="frame"><div class="phone">
+    <div class="appbar"><span class="ic">☰</span> Prudence</div>
+    <div class="dim"></div>
+    <div class="drawer">
+      <b>Categories</b>
+      <div class="tree" style="margin-top:8px">
+        <div class="trow" style="--d:0"><span class="grow">Food</span><span class="edit">✎</span></div>
+        <div class="trow" style="--d:1"><span class="grow">Groceries</span><span class="edit">✎</span></div>
+        <div class="trow" style="--d:1"><span class="grow">Eating out</span><span class="edit">✎</span></div>
+        <div class="trow" style="--d:0"><span class="grow">Transport</span><span class="edit">✎</span></div>
+        <div class="trow" style="--d:1"><span class="grow">Fuel</span><span class="edit">✎</span></div>
+        <div class="trow" style="--d:1"><span class="grow">Public transport</span><span class="edit">✎</span></div>
+        <div class="trow" style="--d:0"><span class="grow">Housing</span><span class="edit">✎</span></div>
+        <div class="trow" style="--d:1"><span class="grow">Rent</span><span class="edit">✎</span></div>
+        <div class="trow" style="--d:1"><span class="grow">Utilities</span><span class="edit">✎</span></div>
+        <div class="trow" style="--d:0"><span class="grow">Health</span><span class="edit">✎</span></div>
+        <div class="trow" style="--d:0"><span class="grow">Entertainment</span><span class="edit">✎</span></div>
+        <div class="trow" style="--d:0"><span class="grow muted">Uncategorized 🔒</span></div>
+      </div>
+      <p class="muted small" style="margin-top:8px">tap ✎ → rename / move / delete sheet · ＋ at top adds</p>
+    </div>
+  </div><figcaption>C3 · Categories — side drawer, keeps tree context over content</figcaption></figure>
+
+  <figure class="frame"><div class="phone">
+    <div class="appbar"><span class="ic">☰</span> Prudence</div>
+    <div class="chips"><span class="navarrow">‹</span><span class="chip">This week</span><span class="chip on">This month</span><span class="chip">Custom…</span><span class="navarrow">›</span></div>
+    <div class="totalcard"><div class="label muted small">1–30 NOV 2026 · TOTAL</div><div class="big">$1,451.39</div></div>
+    <div class="body" style="padding:0">
+      <div class="card"><div class="top" style="display:flex"><b class="grow">Housing</b><span class="amt">$950.00</span><span class="muted small">&nbsp;65%</span></div>
+        <div class="kid" style="display:block">Rent $900.00<div class="kidbar" style="width:95%"></div></div>
+        <div class="kid" style="display:block">Utilities $50.00<div class="kidbar" style="width:6%"></div></div>
+      </div>
+      <div class="card"><div class="top" style="display:flex"><b class="grow">Food</b><span class="amt">$312.40</span><span class="muted small">&nbsp;22%</span></div>
+        <div class="kid" style="display:block">Groceries $268.90<div class="kidbar" style="width:86%"></div></div>
+        <div class="kid" style="display:block">Eating out $43.50<div class="kidbar" style="width:14%"></div></div>
+      </div>
+      <div class="card"><div class="top" style="display:flex"><b class="grow">Transport</b><span class="amt">$146.00</span><span class="muted small">&nbsp;10%</span></div>
+        <div class="kid" style="display:block">Fuel $110.00<div class="kidbar" style="width:75%"></div></div>
+        <div class="kid" style="display:block">Public transport $36.00<div class="kidbar" style="width:25%"></div></div>
+      </div>
+      <p class="muted small" style="padding:0 14px">cards show children inline — no drill-down needed</p>
+    </div>
+    <div class="bottomnav"><div class="on">●<br>Report</div><div>●<br>Expenses</div></div>
+  </div><figcaption>C4 · Report IS the home — breakdown cards with children visible</figcaption></figure>
+
+</div>
+</section>
+
+<div class="switcher">
+  <button id="prev" aria-label="previous variant">‹</button>
+  <span><b id="vkey">A</b> <span class="vname" id="vname"></span></span>
+  <button id="next" aria-label="next variant">›</button>
+</div>
+
+<script>
+  const variants = [...document.querySelectorAll('.variant')];
+  const keys = variants.map(v => v.dataset.v);
+  function show(k) {
+    if (!keys.includes(k)) k = keys[0];
+    variants.forEach(v => v.hidden = v.dataset.v !== k);
+    const cur = variants.find(v => v.dataset.v === k);
+    document.getElementById('vkey').textContent = k;
+    document.getElementById('vname').textContent = '(' + cur.dataset.name + ')';
+    const u = new URL(location); u.searchParams.set('variant', k);
+    history.replaceState(null, '', u);
+  }
+  function step(d) {
+    const cur = new URL(location).searchParams.get('variant') || keys[0];
+    show(keys[(keys.indexOf(cur) + d + keys.length) % keys.length]);
+  }
+  document.getElementById('prev').onclick = () => step(-1);
+  document.getElementById('next').onclick = () => step(1);
+  addEventListener('keydown', e => {
+    if (e.target.matches('input, textarea, [contenteditable]')) return;
+    if (e.key === 'ArrowLeft') step(-1);
+    if (e.key === 'ArrowRight') step(1);
+  });
+  show(new URL(location).searchParams.get('variant'));
+</script>
+</body>
+</html>
