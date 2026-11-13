@@ -25,6 +25,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.prudence.app.domain.Money
+import com.prudence.app.ui.icons.BarChartIcon
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -32,6 +33,7 @@ fun ExpenseListScreen(
     viewModel: ExpenseListViewModel,
     onAddClick: () -> Unit,
     onExpenseClick: (expenseId: Long) -> Unit,
+    onReportClick: () -> Unit,
     onCategoriesClick: () -> Unit,
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
@@ -50,6 +52,9 @@ fun ExpenseListScreen(
                     }
                 },
                 actions = {
+                    IconButton(onClick = onReportClick) {
+                        Icon(BarChartIcon, contentDescription = "Report")
+                    }
                     IconButton(onClick = onCategoriesClick) {
                         Icon(Icons.Filled.Settings, contentDescription = "Categories")
                     }

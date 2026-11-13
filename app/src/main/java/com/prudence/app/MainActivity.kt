@@ -14,6 +14,8 @@ import com.prudence.app.expenselist.ExpenseListScreen
 import com.prudence.app.navigation.AddExpense
 import com.prudence.app.navigation.Categories
 import com.prudence.app.navigation.ExpenseList
+import com.prudence.app.navigation.Report
+import com.prudence.app.report.ReportScreen
 import com.prudence.app.ui.theme.PrudenceTheme
 
 class MainActivity : ComponentActivity() {
@@ -35,6 +37,7 @@ class MainActivity : ComponentActivity() {
                                 viewModel = viewModel(factory = container.expenseListViewModelFactory()),
                                 onAddClick = { backStack.add(AddExpense()) },
                                 onExpenseClick = { id -> backStack.add(AddExpense(expenseId = id)) },
+                                onReportClick = { backStack.add(Report) },
                                 onCategoriesClick = { backStack.add(Categories) },
                             )
                         }
@@ -48,6 +51,12 @@ class MainActivity : ComponentActivity() {
                         entry<Categories> {
                             CategoriesScreen(
                                 viewModel = viewModel(factory = container.categoriesViewModelFactory()),
+                                onBack = { backStack.removeLastOrNull() },
+                            )
+                        }
+                        entry<Report> {
+                            ReportScreen(
+                                viewModel = viewModel(factory = container.reportViewModelFactory()),
                                 onBack = { backStack.removeLastOrNull() },
                             )
                         }

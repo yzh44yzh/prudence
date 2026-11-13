@@ -12,6 +12,7 @@ import com.prudence.app.data.CategoryRepository
 import com.prudence.app.data.CategorySeeds
 import com.prudence.app.data.ExpenseRepository
 import com.prudence.app.expenselist.ExpenseListViewModel
+import com.prudence.app.report.ReportViewModel
 import com.prudence.app.settings.SettingsRepository
 import com.prudence.app.settings.settingsDataStore
 
@@ -38,5 +39,9 @@ class AppContainer(context: Context) {
 
     fun categoriesViewModelFactory(): ViewModelProvider.Factory = viewModelFactory {
         initializer { CategoriesViewModel(categoryRepository) }
+    }
+
+    fun reportViewModelFactory(): ViewModelProvider.Factory = viewModelFactory {
+        initializer { ReportViewModel(expenseRepository, categoryRepository) }
     }
 }

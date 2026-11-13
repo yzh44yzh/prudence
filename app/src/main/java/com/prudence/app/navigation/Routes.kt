@@ -12,3 +12,6 @@ data class AddExpense(val expenseId: Long? = null) : NavKey
 
 @Serializable
 data object Categories : NavKey
+
+@Serializable
+data object Report : NavKey
