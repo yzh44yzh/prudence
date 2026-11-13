@@ -44,7 +44,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.prudence.app.domain.Money
+import com.prudence.app.ui.MoneyText
 import java.time.Instant
 import java.time.LocalDate
 import java.time.ZoneOffset
@@ -112,8 +112,9 @@ fun ReportScreen(
                 }
             }
 
-            Text(
-                Money.format(state.totalMinor, state.currencySymbol),
+            MoneyText(
+                state.totalMinor,
+                state.currencySymbol,
                 style = MaterialTheme.typography.displaySmall,
                 textAlign = TextAlign.Center,
                 modifier = Modifier.fillMaxWidth(),
@@ -203,7 +204,7 @@ private fun BreakdownRow(row: ReportViewModel.Row, currencySymbol: String, onCli
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             Text(row.category.name, modifier = Modifier.weight(1f))
-            Text(Money.format(row.totalMinor, currencySymbol), style = MaterialTheme.typography.titleMedium)
+            MoneyText(row.totalMinor, currencySymbol, style = MaterialTheme.typography.titleMedium)
             Spacer(modifier = Modifier.width(12.dp))
             Text(
                 "${(row.shareOfLevel * 100).roundToInt()}%",

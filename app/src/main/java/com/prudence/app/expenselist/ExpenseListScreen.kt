@@ -24,7 +24,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.prudence.app.domain.Money
+import com.prudence.app.ui.MoneyText
 import com.prudence.app.ui.icons.BarChartIcon
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -48,7 +48,11 @@ fun ExpenseListScreen(
                             style = MaterialTheme.typography.labelSmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                         )
-                        Text(Money.format(state.monthTotalMinor, state.currencySymbol), style = MaterialTheme.typography.titleLarge)
+                        MoneyText(
+                            state.monthTotalMinor,
+                            state.currencySymbol,
+                            style = MaterialTheme.typography.titleLarge,
+                        )
                     }
                 },
                 actions = {
@@ -94,7 +98,7 @@ fun ExpenseListScreen(
                         ListItem(
                             headlineContent = { Text(row.categoryName) },
                             supportingContent = row.expense.note?.let { note -> { Text(note) } },
-                            trailingContent = { Text(Money.format(row.expense.amountMinor, state.currencySymbol)) },
+                            trailingContent = { MoneyText(row.expense.amountMinor, state.currencySymbol) },
                             modifier = Modifier.clickable { onExpenseClick(row.expense.id) },
                         )
                         HorizontalDivider(thickness = 0.5.dp)
