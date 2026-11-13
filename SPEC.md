@@ -52,9 +52,9 @@ Full findings: [docs/research/android-stack.md](https://github.com/yzh44yzh/prud
 
 - Single `app` Gradle module, packages by feature: `expenselist`, `addexpense`, `categories`, `report`, `export`, `data`, `settings`.
 - Unidirectional data flow: Compose UI ← `StateFlow` ← ViewModel ← repository ← Room. DAO `Flow` streams make lists and reports live.
-- One ViewModel per screen (four total). UI sees domain types (Expense, Category), never Room entities.
+- One ViewModel per screen (five total). UI sees domain types (Expense, Category), never Room entities.
 - Manual app container wires database → DAOs → repositories → ViewModel factories.
-- Four Navigation 3 destinations: List (home), AddExpense, Categories, Report. No bottom-nav scaffold, no drawer.
+- Five Navigation 3 destinations: List (home), AddExpense, Report, Settings, Categories. No bottom-nav scaffold, no drawer.
 
 ## 5. Screens
 
@@ -62,7 +62,7 @@ Structure per the winning prototype (**Variant B**; all variants preserved at [p
 
 1. **Expense list = home.** App bar shows the running current-month total; icons for Report and Settings. List grouped by date (newest first), rows show category, note (if any), amount. Persistent **"+ Add expense"** button pinned at the bottom.
 2. **Add expense** (full-screen): big centered amount entry; date row defaulting to today; **category as a chip path** — selected path chips (`Food ✕ Groceries ✕`) remove levels, chips below offer the next level, tap selects; optional note; Save.
-3. **Categories** (from ⚙ settings icon): indented tree; per-row rename (✎) and move/delete (⋮) with the semantics in §2; Uncategorized locked at the bottom; ＋ in the app bar adds a category.
+3. **Categories** (from Settings): indented tree; per-row rename (✎) and move/delete (⋮) with the semantics in §2; Uncategorized locked at the bottom; ＋ in the app bar adds a category.
 4. **Report** (from 📊 icon): see §6.
 5. **Settings** (⚙): display currency; **Export CSV**.
 

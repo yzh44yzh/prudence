@@ -23,6 +23,9 @@ class AddExpenseViewModel(
     val categories: StateFlow<List<Category>> = categoryRepository.observeCategories()
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptyList())
 
+    val displayCurrency: StateFlow<String> = settingsRepository.displayCurrency
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), "")
+
     /** The last-used category when it still exists in the tree, else Uncategorized. */
     suspend fun defaultCategoryId(): Long {
         val tree = categories.first { it.isNotEmpty() }

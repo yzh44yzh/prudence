@@ -24,4 +24,18 @@ class SettingsRepositoryTest {
         settings.setLastUsedCategoryId(42L)
         assertEquals(42L, settings.lastUsedCategoryId.first())
     }
+
+    @Test
+    fun `display currency defaults to none and round-trips`() = runTest {
+        val dir = Files.createTempDirectory("settings-test").toFile()
+        val dataStore = PreferenceDataStoreFactory.create(scope = backgroundScope) {
+            File(dir, "settings.preferences_pb")
+        }
+        val settings = SettingsRepository(dataStore)
+
+        assertEquals("", settings.displayCurrency.first())
+
+        settings.setDisplayCurrency("₽")
+        assertEquals("₽", settings.displayCurrency.first())
+    }
 }

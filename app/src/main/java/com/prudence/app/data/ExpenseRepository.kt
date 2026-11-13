@@ -29,6 +29,9 @@ class ExpenseRepository(private val dao: ExpenseDao) {
 
     suspend fun getExpense(id: Long): Expense? = dao.getById(id)?.toDomain()
 
+    /** One-shot snapshot (e.g. for CSV export), same ordering as [observeExpenses]. */
+    suspend fun getExpenses(): List<Expense> = dao.getAll().map { it.toDomain() }
+
     suspend fun updateExpense(expense: Expense) {
         dao.update(expense.toEntity())
     }

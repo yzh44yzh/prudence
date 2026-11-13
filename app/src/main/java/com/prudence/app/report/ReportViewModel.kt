@@ -6,6 +6,7 @@ import com.prudence.app.data.CategoryRepository
 import com.prudence.app.data.ExpenseRepository
 import com.prudence.app.domain.Category
 import com.prudence.app.domain.pathTo
+import com.prudence.app.settings.SettingsRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -19,6 +20,7 @@ import java.util.Locale
 class ReportViewModel(
     expenseRepository: ExpenseRepository,
     categoryRepository: CategoryRepository,
+    settingsRepository: SettingsRepository,
 ) : ViewModel() {
 
     data class Row(
@@ -36,6 +38,7 @@ class ReportViewModel(
         val rows: List<Row>,
         /** Path from root to the drilled category; empty = top level. */
         val breadcrumb: List<Category>,
+        val currencySymbol: String = "",
     )
 
     private val interval = MutableStateFlow(Interval.thisWeek(LocalDate.now()))
@@ -73,6 +76,8 @@ class ReportViewModel(
             rows = rows,
             breadcrumb = drilled?.let { categories.pathTo(it) }.orEmpty(),
         )
+    }.combine(settingsRepository.displayCurrency) { state, currency ->
+        state.copy(currencySymbol = currency)
     }.stateIn(
         viewModelScope,
         SharingStarted.WhileSubscribed(5_000),

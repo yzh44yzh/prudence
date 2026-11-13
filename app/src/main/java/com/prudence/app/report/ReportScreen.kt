@@ -113,7 +113,7 @@ fun ReportScreen(
             }
 
             Text(
-                Money.format(state.totalMinor),
+                Money.format(state.totalMinor, state.currencySymbol),
                 style = MaterialTheme.typography.displaySmall,
                 textAlign = TextAlign.Center,
                 modifier = Modifier.fillMaxWidth(),
@@ -154,6 +154,7 @@ fun ReportScreen(
                     items(state.rows, key = { it.category.id }) { row ->
                         BreakdownRow(
                             row = row,
+                            currencySymbol = state.currencySymbol,
                             onClick = if (row.hasChildren) {
                                 { viewModel.drillTo(row.category.id) }
                             } else {
@@ -193,7 +194,7 @@ fun ReportScreen(
 }
 
 @Composable
-private fun BreakdownRow(row: ReportViewModel.Row, onClick: (() -> Unit)?) {
+private fun BreakdownRow(row: ReportViewModel.Row, currencySymbol: String, onClick: (() -> Unit)?) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -202,7 +203,7 @@ private fun BreakdownRow(row: ReportViewModel.Row, onClick: (() -> Unit)?) {
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             Text(row.category.name, modifier = Modifier.weight(1f))
-            Text(Money.format(row.totalMinor), style = MaterialTheme.typography.titleMedium)
+            Text(Money.format(row.totalMinor, currencySymbol), style = MaterialTheme.typography.titleMedium)
             Spacer(modifier = Modifier.width(12.dp))
             Text(
                 "${(row.shareOfLevel * 100).roundToInt()}%",

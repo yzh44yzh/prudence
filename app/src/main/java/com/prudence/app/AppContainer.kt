@@ -14,6 +14,7 @@ import com.prudence.app.data.ExpenseRepository
 import com.prudence.app.expenselist.ExpenseListViewModel
 import com.prudence.app.report.ReportViewModel
 import com.prudence.app.settings.SettingsRepository
+import com.prudence.app.settings.SettingsViewModel
 import com.prudence.app.settings.settingsDataStore
 
 /** Manual DI: wires database -> DAOs -> repositories -> ViewModel factories. No framework (per spec). */
@@ -30,7 +31,7 @@ class AppContainer(context: Context) {
     private val settingsRepository = SettingsRepository(context.settingsDataStore)
 
     fun expenseListViewModelFactory(): ViewModelProvider.Factory = viewModelFactory {
-        initializer { ExpenseListViewModel(expenseRepository, categoryRepository) }
+        initializer { ExpenseListViewModel(expenseRepository, categoryRepository, settingsRepository) }
     }
 
     fun addExpenseViewModelFactory(): ViewModelProvider.Factory = viewModelFactory {
@@ -42,6 +43,10 @@ class AppContainer(context: Context) {
     }
 
     fun reportViewModelFactory(): ViewModelProvider.Factory = viewModelFactory {
-        initializer { ReportViewModel(expenseRepository, categoryRepository) }
+        initializer { ReportViewModel(expenseRepository, categoryRepository, settingsRepository) }
+    }
+
+    fun settingsViewModelFactory(): ViewModelProvider.Factory = viewModelFactory {
+        initializer { SettingsViewModel(settingsRepository, expenseRepository, categoryRepository) }
     }
 }

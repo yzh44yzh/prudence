@@ -15,7 +15,9 @@ import com.prudence.app.navigation.AddExpense
 import com.prudence.app.navigation.Categories
 import com.prudence.app.navigation.ExpenseList
 import com.prudence.app.navigation.Report
+import com.prudence.app.navigation.Settings
 import com.prudence.app.report.ReportScreen
+import com.prudence.app.settings.SettingsScreen
 import com.prudence.app.ui.theme.PrudenceTheme
 
 class MainActivity : ComponentActivity() {
@@ -38,7 +40,7 @@ class MainActivity : ComponentActivity() {
                                 onAddClick = { backStack.add(AddExpense()) },
                                 onExpenseClick = { id -> backStack.add(AddExpense(expenseId = id)) },
                                 onReportClick = { backStack.add(Report) },
-                                onCategoriesClick = { backStack.add(Categories) },
+                                onSettingsClick = { backStack.add(Settings) },
                             )
                         }
                         entry<AddExpense> { key ->
@@ -58,6 +60,13 @@ class MainActivity : ComponentActivity() {
                             ReportScreen(
                                 viewModel = viewModel(factory = container.reportViewModelFactory()),
                                 onBack = { backStack.removeLastOrNull() },
+                            )
+                        }
+                        entry<Settings> {
+                            SettingsScreen(
+                                viewModel = viewModel(factory = container.settingsViewModelFactory()),
+                                onBack = { backStack.removeLastOrNull() },
+                                onCategoriesClick = { backStack.add(Categories) },
                             )
                         }
                     },

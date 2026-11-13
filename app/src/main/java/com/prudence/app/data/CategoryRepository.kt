@@ -11,6 +11,9 @@ class CategoryRepository(private val db: AppDatabase, private val dao: CategoryD
     fun observeCategories(): Flow<List<Category>> =
         dao.observeAll().map { entities -> entities.map { it.toDomain() } }
 
+    /** One-shot snapshot (e.g. for CSV export). */
+    suspend fun getCategories(): List<Category> = dao.getAll().map { it.toDomain() }
+
     /** Null when the name is reserved (the permanent Uncategorized's name may not be reused). */
     suspend fun addCategory(name: String, parentId: Long?): Long? {
         if (isReservedName(name)) return null

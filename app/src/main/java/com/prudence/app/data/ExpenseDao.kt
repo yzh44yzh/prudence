@@ -22,4 +22,7 @@ interface ExpenseDao {
 
     @Query("SELECT * FROM expenses ORDER BY date DESC, id DESC")
     fun observeAll(): Flow<List<ExpenseEntity>>
+
+    @Query("SELECT * FROM expenses ORDER BY date DESC, id DESC")
+    suspend fun getAll(): List<ExpenseEntity>
 }

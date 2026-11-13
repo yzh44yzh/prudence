@@ -76,6 +76,7 @@ fun AddExpenseScreen(
     val date = LocalDate.parse(dateIso)
     val amountMinor = remember(amount) { Money.parseMinor(amount) }
     val categories by viewModel.categories.collectAsStateWithLifecycle()
+    val currencySymbol by viewModel.displayCurrency.collectAsStateWithLifecycle()
 
     // First open: edit mode prefills from the expense (if it vanished, back out);
     // add mode preselects the last-used category.
@@ -126,7 +127,7 @@ fun AddExpenseScreen(
             OutlinedTextField(
                 value = amount,
                 onValueChange = { amount = it },
-                label = { Text("Amount") },
+                label = { Text(if (currencySymbol.isEmpty()) "Amount" else "Amount ($currencySymbol)") },
                 textStyle = MaterialTheme.typography.headlineMedium.copy(textAlign = TextAlign.Center),
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
                 singleLine = true,

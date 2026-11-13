@@ -15,3 +15,6 @@ data object Categories : NavKey
 
 @Serializable
 data object Report : NavKey
+
+@Serializable
+data object Settings : NavKey

@@ -34,7 +34,7 @@ fun ExpenseListScreen(
     onAddClick: () -> Unit,
     onExpenseClick: (expenseId: Long) -> Unit,
     onReportClick: () -> Unit,
-    onCategoriesClick: () -> Unit,
+    onSettingsClick: () -> Unit,
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
 
@@ -48,15 +48,15 @@ fun ExpenseListScreen(
                             style = MaterialTheme.typography.labelSmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                         )
-                        Text(Money.format(state.monthTotalMinor), style = MaterialTheme.typography.titleLarge)
+                        Text(Money.format(state.monthTotalMinor, state.currencySymbol), style = MaterialTheme.typography.titleLarge)
                     }
                 },
                 actions = {
                     IconButton(onClick = onReportClick) {
                         Icon(BarChartIcon, contentDescription = "Report")
                     }
-                    IconButton(onClick = onCategoriesClick) {
-                        Icon(Icons.Filled.Settings, contentDescription = "Categories")
+                    IconButton(onClick = onSettingsClick) {
+                        Icon(Icons.Filled.Settings, contentDescription = "Settings")
                     }
                 },
             )
@@ -94,7 +94,7 @@ fun ExpenseListScreen(
                         ListItem(
                             headlineContent = { Text(row.categoryName) },
                             supportingContent = row.expense.note?.let { note -> { Text(note) } },
-                            trailingContent = { Text(Money.format(row.expense.amountMinor)) },
+                            trailingContent = { Text(Money.format(row.expense.amountMinor, state.currencySymbol)) },
                             modifier = Modifier.clickable { onExpenseClick(row.expense.id) },
                         )
                         HorizontalDivider(thickness = 0.5.dp)
