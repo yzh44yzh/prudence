@@ -1,5 +1,6 @@
 package com.prudence.app.categories
 
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -227,19 +228,21 @@ private fun CategoryFormDialog(
         onDismissRequest = onDismiss,
         title = { Text(title) },
         text = {
-            OutlinedTextField(
-                value = name,
-                onValueChange = { name = it },
-                label = { Text("Name") },
-                singleLine = true,
-                modifier = Modifier.fillMaxWidth(),
-            )
-            if (parentOptions != null) {
-                ParentPicker(
-                    options = parentOptions,
-                    selected = parentId,
-                    onSelect = { parentId = it },
+            Column {
+                OutlinedTextField(
+                    value = name,
+                    onValueChange = { name = it },
+                    label = { Text("Name") },
+                    singleLine = true,
+                    modifier = Modifier.fillMaxWidth(),
                 )
+                if (parentOptions != null) {
+                    ParentPicker(
+                        options = parentOptions,
+                        selected = parentId,
+                        onSelect = { parentId = it },
+                    )
+                }
             }
         },
         confirmButton = {
