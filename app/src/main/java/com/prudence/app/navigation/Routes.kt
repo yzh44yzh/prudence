@@ -8,3 +8,6 @@ data object ExpenseList : NavKey
 
 @Serializable
 data object AddExpense : NavKey
+
+@Serializable
+data object Categories : NavKey

@@ -9,7 +9,7 @@ data class ExpenseEntity(
     @PrimaryKey(autoGenerate = true) val id: Long = 0,
     val amountMinor: Long,
     val date: LocalDate,
-    /** 0 = Uncategorized placeholder until the category tree lands (ticket #10). */
+    /** References categories.id (1 = Uncategorized). No FK: delete semantics reassign in a transaction (see CategoryRepository). */
     val categoryId: Long,
     val note: String?,
 )

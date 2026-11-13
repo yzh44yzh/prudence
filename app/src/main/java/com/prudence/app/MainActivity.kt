@@ -9,8 +9,10 @@ import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.runtime.rememberNavBackStack
 import androidx.navigation3.ui.NavDisplay
 import com.prudence.app.addexpense.AddExpenseScreen
+import com.prudence.app.categories.CategoriesScreen
 import com.prudence.app.expenselist.ExpenseListScreen
 import com.prudence.app.navigation.AddExpense
+import com.prudence.app.navigation.Categories
 import com.prudence.app.navigation.ExpenseList
 import com.prudence.app.ui.theme.PrudenceTheme
 
@@ -32,12 +34,19 @@ class MainActivity : ComponentActivity() {
                             ExpenseListScreen(
                                 viewModel = viewModel(factory = container.expenseListViewModelFactory()),
                                 onAddClick = { backStack.add(AddExpense) },
+                                onCategoriesClick = { backStack.add(Categories) },
                             )
                         }
                         entry<AddExpense> {
                             AddExpenseScreen(
                                 viewModel = viewModel(factory = container.addExpenseViewModelFactory()),
                                 onDone = { backStack.removeLastOrNull() },
+                            )
+                        }
+                        entry<Categories> {
+                            CategoriesScreen(
+                                viewModel = viewModel(factory = container.categoriesViewModelFactory()),
+                                onBack = { backStack.removeLastOrNull() },
                             )
                         }
                     },

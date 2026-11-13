@@ -1,5 +1,6 @@
 package com.prudence.app.data
 
+import com.prudence.app.domain.Category
 import com.prudence.app.domain.Expense
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
@@ -14,7 +15,7 @@ class ExpenseRepository(private val dao: ExpenseDao) {
         amountMinor: Long,
         date: LocalDate,
         note: String? = null,
-        categoryId: Long = UNCATEGORIZED_ID,
+        categoryId: Long = Category.UNCATEGORIZED_ID,
     ) {
         dao.insert(
             ExpenseEntity(
@@ -33,9 +34,4 @@ class ExpenseRepository(private val dao: ExpenseDao) {
         categoryId = categoryId,
         note = note,
     )
-
-    companion object {
-        /** Placeholder for the permanent Uncategorized category until ticket #10 creates the tree. */
-        const val UNCATEGORIZED_ID = 0L
-    }
 }

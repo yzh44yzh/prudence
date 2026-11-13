@@ -34,6 +34,17 @@ android {
 
     testOptions {
         unitTests.isIncludeAndroidResources = true
+        unitTests.all {
+            // Robolectric reaches into JRE internals (jdk.internal.access et al.)
+            it.jvmArgs(
+                "--add-opens", "java.base/jdk.internal.access=ALL-UNNAMED",
+                "--add-opens", "java.base/java.lang=ALL-UNNAMED",
+                "--add-opens", "java.base/java.util=ALL-UNNAMED",
+                "--add-opens", "java.base/java.io=ALL-UNNAMED",
+                "--add-opens", "java.base/java.nio=ALL-UNNAMED",
+                "--add-opens", "java.base/sun.nio.ch=ALL-UNNAMED",
+            )
+        }
     }
 }
 
