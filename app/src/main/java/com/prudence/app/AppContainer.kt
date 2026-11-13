@@ -12,6 +12,8 @@ import com.prudence.app.data.CategoryRepository
 import com.prudence.app.data.CategorySeeds
 import com.prudence.app.data.ExpenseRepository
 import com.prudence.app.expenselist.ExpenseListViewModel
+import com.prudence.app.settings.SettingsRepository
+import com.prudence.app.settings.settingsDataStore
 
 /** Manual DI: wires database -> DAOs -> repositories -> ViewModel factories. No framework (per spec). */
 class AppContainer(context: Context) {
@@ -24,13 +26,14 @@ class AppContainer(context: Context) {
 
     private val expenseRepository = ExpenseRepository(database.expenseDao())
     private val categoryRepository = CategoryRepository(database, database.categoryDao())
+    private val settingsRepository = SettingsRepository(context.settingsDataStore)
 
     fun expenseListViewModelFactory(): ViewModelProvider.Factory = viewModelFactory {
         initializer { ExpenseListViewModel(expenseRepository) }
     }
 
     fun addExpenseViewModelFactory(): ViewModelProvider.Factory = viewModelFactory {
-        initializer { AddExpenseViewModel(expenseRepository) }
+        initializer { AddExpenseViewModel(expenseRepository, categoryRepository, settingsRepository) }
     }
 
     fun categoriesViewModelFactory(): ViewModelProvider.Factory = viewModelFactory {

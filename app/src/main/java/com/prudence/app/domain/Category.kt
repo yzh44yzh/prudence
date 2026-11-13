@@ -25,3 +25,17 @@ fun List<Category>.descendantIdsOf(id: Long): Set<Long> {
     }
     return result
 }
+
+/** Path from the root down to [id] inclusive; empty when [id] is unknown. Drives the chip-path picker. */
+fun List<Category>.pathTo(id: Long): List<Category> {
+    val byId = associateBy { it.id }
+    val path = mutableListOf<Category>()
+    val visited = mutableSetOf<Long>()
+    var current: Long? = id
+    while (current != null && visited.add(current)) {
+        val category = byId[current] ?: return emptyList()
+        path.add(category)
+        current = category.parentId
+    }
+    return path.asReversed()
+}
