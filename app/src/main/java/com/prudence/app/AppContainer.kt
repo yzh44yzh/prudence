@@ -29,7 +29,7 @@ class AppContainer(context: Context) {
     private val settingsRepository = SettingsRepository(context.settingsDataStore)
 
     fun expenseListViewModelFactory(): ViewModelProvider.Factory = viewModelFactory {
-        initializer { ExpenseListViewModel(expenseRepository) }
+        initializer { ExpenseListViewModel(expenseRepository, categoryRepository) }
     }
 
     fun addExpenseViewModelFactory(): ViewModelProvider.Factory = viewModelFactory {

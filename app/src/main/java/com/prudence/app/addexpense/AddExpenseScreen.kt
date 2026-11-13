@@ -18,6 +18,8 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.DateRange
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDialog
@@ -46,20 +48,21 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.prudence.app.domain.AppDateFormatter
 import com.prudence.app.domain.Category
 import com.prudence.app.domain.Money
 import com.prudence.app.domain.pathTo
 import java.time.Instant
 import java.time.LocalDate
 import java.time.ZoneOffset
-import java.time.format.DateTimeFormatter
 
-private val dateFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern("d MMM yyyy")
+private val dateFormatter = AppDateFormatter
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AddExpenseScreen(
     viewModel: AddExpenseViewModel,
+    expenseId: Long?,
     onDone: () -> Unit,
 ) {
     var amount by rememberSaveable { mutableStateOf("") }
@@ -67,23 +70,47 @@ fun AddExpenseScreen(
     var note by rememberSaveable { mutableStateOf("") }
     var selectedCategoryId by rememberSaveable { mutableStateOf<Long?>(null) }
     var showDatePicker by rememberSaveable { mutableStateOf(false) }
+    var showDeleteConfirm by rememberSaveable { mutableStateOf(false) }
+    var loaded by rememberSaveable { mutableStateOf(false) }
 
     val date = LocalDate.parse(dateIso)
     val amountMinor = remember(amount) { Money.parseMinor(amount) }
     val categories by viewModel.categories.collectAsStateWithLifecycle()
 
-    // First open of the form: preselect the last-used category (or Uncategorized).
+    // First open: edit mode prefills from the expense (if it vanished, back out);
+    // add mode preselects the last-used category.
     LaunchedEffect(Unit) {
-        if (selectedCategoryId == null) selectedCategoryId = viewModel.defaultCategoryId()
+        if (loaded) return@LaunchedEffect
+        if (expenseId != null) {
+            val expense = viewModel.expenseForEdit(expenseId)
+            if (expense == null) {
+                onDone()
+                return@LaunchedEffect
+            }
+            amount = Money.format(expense.amountMinor)
+            dateIso = expense.date.toString()
+            note = expense.note.orEmpty()
+            selectedCategoryId = expense.categoryId
+        } else if (selectedCategoryId == null) {
+            selectedCategoryId = viewModel.defaultCategoryId()
+        }
+        loaded = true
     }
 
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Add expense") },
+                title = { Text(if (expenseId == null) "Add expense" else "Edit expense") },
                 navigationIcon = {
                     IconButton(onClick = onDone) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                    }
+                },
+                actions = {
+                    if (expenseId != null) {
+                        IconButton(onClick = { showDeleteConfirm = true }) {
+                            Icon(Icons.Filled.Delete, contentDescription = "Delete expense")
+                        }
                     }
                 },
             )
@@ -138,7 +165,7 @@ fun AddExpenseScreen(
             Spacer(modifier = Modifier.height(16.dp))
             Button(
                 onClick = {
-                    viewModel.save(amountMinor ?: return@Button, date, note, selectedCategoryId, onSaved = onDone)
+                    viewModel.save(expenseId, amountMinor ?: return@Button, date, note, selectedCategoryId, onSaved = onDone)
                 },
                 enabled = amountMinor != null,
                 modifier = Modifier.fillMaxWidth(),
@@ -146,6 +173,23 @@ fun AddExpenseScreen(
                 Text("Save")
             }
         }
+    }
+
+    if (showDeleteConfirm && expenseId != null) {
+        AlertDialog(
+            onDismissRequest = { showDeleteConfirm = false },
+            title = { Text("Delete this expense?") },
+            text = { Text("This cannot be undone.") },
+            confirmButton = {
+                TextButton(onClick = {
+                    showDeleteConfirm = false
+                    viewModel.delete(expenseId, onDeleted = onDone)
+                }) { Text("Delete") }
+            },
+            dismissButton = {
+                TextButton(onClick = { showDeleteConfirm = false }) { Text("Cancel") }
+            },
+        )
     }
 
     if (showDatePicker) {

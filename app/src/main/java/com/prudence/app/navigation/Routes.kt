@@ -6,8 +6,9 @@ import kotlinx.serialization.Serializable
 @Serializable
 data object ExpenseList : NavKey
 
+/** [expenseId] null = add mode; set = edit mode. */
 @Serializable
-data object AddExpense : NavKey
+data class AddExpense(val expenseId: Long? = null) : NavKey
 
 @Serializable
 data object Categories : NavKey

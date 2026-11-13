@@ -33,13 +33,15 @@ class MainActivity : ComponentActivity() {
                         entry<ExpenseList> {
                             ExpenseListScreen(
                                 viewModel = viewModel(factory = container.expenseListViewModelFactory()),
-                                onAddClick = { backStack.add(AddExpense) },
+                                onAddClick = { backStack.add(AddExpense()) },
+                                onExpenseClick = { id -> backStack.add(AddExpense(expenseId = id)) },
                                 onCategoriesClick = { backStack.add(Categories) },
                             )
                         }
-                        entry<AddExpense> {
+                        entry<AddExpense> { key ->
                             AddExpenseScreen(
                                 viewModel = viewModel(factory = container.addExpenseViewModelFactory()),
+                                expenseId = key.expenseId,
                                 onDone = { backStack.removeLastOrNull() },
                             )
                         }

@@ -27,7 +27,25 @@ class ExpenseRepository(private val dao: ExpenseDao) {
         )
     }
 
+    suspend fun getExpense(id: Long): Expense? = dao.getById(id)?.toDomain()
+
+    suspend fun updateExpense(expense: Expense) {
+        dao.update(expense.toEntity())
+    }
+
+    suspend fun deleteExpense(id: Long) {
+        dao.deleteById(id)
+    }
+
     private fun ExpenseEntity.toDomain() = Expense(
+        id = id,
+        amountMinor = amountMinor,
+        date = date,
+        categoryId = categoryId,
+        note = note,
+    )
+
+    private fun Expense.toEntity() = ExpenseEntity(
         id = id,
         amountMinor = amountMinor,
         date = date,
