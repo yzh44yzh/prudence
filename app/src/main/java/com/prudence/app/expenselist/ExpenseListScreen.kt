@@ -2,7 +2,9 @@ package com.prudence.app.expenselist
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
@@ -22,7 +24,10 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.prudence.app.ui.MoneyText
 import com.prudence.app.ui.icons.BarChartIcon
@@ -45,9 +50,14 @@ fun ExpenseListScreen(
                     Column {
                         Text(
                             state.monthLabel,
-                            style = MaterialTheme.typography.labelSmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            style = TextStyle(
+                                fontSize = 20.sp,
+                                fontWeight = FontWeight.Bold,
+                                lineHeight = 24.sp,
+                            ),
+                            color = MaterialTheme.colorScheme.primary,
                         )
+                        Spacer(Modifier.height(4.dp))
                         MoneyText(
                             state.monthTotalMinor,
                             state.currencySymbol,
@@ -90,8 +100,8 @@ fun ExpenseListScreen(
                 when (row) {
                     is ExpenseListRow.DateHeader -> Text(
                         row.label,
-                        style = MaterialTheme.typography.labelMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        style = TextStyle(fontSize = 18.sp, fontWeight = FontWeight.SemiBold),
+                        color = MaterialTheme.colorScheme.tertiary,
                         modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
                     )
                     is ExpenseListRow.Item -> Column {
